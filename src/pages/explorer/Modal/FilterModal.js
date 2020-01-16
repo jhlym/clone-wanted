@@ -1,5 +1,6 @@
 import React from "react";
 import styled, { css } from "styled-components";
+import * as _ from "lodash";
 import {
   Button,
   Modal,
@@ -8,7 +9,7 @@ import {
   Dropdown,
   Checkbox
 } from "semantic-ui-react";
-import OptionButton from "../Button/OptionButton";
+import { OptionButton } from "../../../components/Button/";
 
 const SubTitle = styled.p`
   ${props =>
@@ -31,25 +32,77 @@ const headerToolStyle = {
 const FilterModal = props => {
   const {
     open,
-    onClose,
+    onClose, // modal close
+    onAction, // call restful api
     sortOptions,
     careerOptions,
     countries,
     locations
   } = props;
+  const [selectedSort, setSort] = React.useState(sortOptions[0].value);
+  const [selectedCareer, setCareer] = React.useState(careerOptions[0].value);
   // TODO: 브라우저 국가 코드 기반으로 default
   const [selectedCountry, setCountry] = React.useState("kr");
   const [selectedLocation, setLocation] = React.useState([]);
-  // React.useEffect(() => {}, [selectedCountry]);
+
+  // componentDidMount
+  React.useEffect(() => {}, []);
+
+  const isCheckedLocation = React.useCallback(
+    location => _.find(selectedLocation, e => e === location) !== undefined
+  );
+
+  const initLocation = React.useCallback(() => setLocation([]), []);
+
+  // TODO: 초기화 함수 정의
+  const reset = React.useCallback(() => {}, []);
+
+  const handleCountryBtn = React.useCallback(
+    value => {
+      initLocation();
+      setCountry(value);
+    },
+    [initLocation]
+  );
+
+  const handleLocationBtn = React.useCallback(
+    location => {
+      // 선택
+      if (!isCheckedLocation(location)) {
+        setLocation([...selectedLocation, location]);
+      }
+      // 선택 해제
+      else {
+        setLocation(_.filter(selectedLocation, e => location !== e));
+      }
+    },
+    [isCheckedLocation, selectedLocation]
+  );
+
+  const applyFliterOption = React.useCallback(() => {
+    // TODO: mobx 이용해서 filter 옵션 값 상태관리
+    onAction({
+      country: selectedCountry,
+      job_sort: selectedSort,
+      years: selectedCareer,
+      locations: selectedLocation
+    });
+    onClose();
+  }, [
+    onAction,
+    onClose,
+    selectedCareer,
+    selectedCountry,
+    selectedLocation,
+    selectedSort
+  ]);
 
   return (
     <Modal size="tiny" open={open} onClose={onClose}>
       <Modal.Header style={{ fontSize: "1.1rem" }}>
         <Grid>
           <Grid.Row columns={3}>
-            <Grid.Column
-              onClick={() => window.alert("init")}
-              style={{ cursor: "pointer" }}>
+            <Grid.Column onClick={reset} style={{ cursor: "pointer" }}>
               <Icon name="refresh" size="small" style={headerToolStyle} />
               <SubTitle>초기화</SubTitle>
             </Grid.Column>
@@ -75,7 +128,8 @@ const FilterModal = props => {
                 fluid
                 selection
                 options={sortOptions}
-                defaultValue={sortOptions[0].value}
+                defaultValue={selectedSort}
+                onChange={(e, { value }) => setSort(value)}
               />
             </Grid.Column>
           </Grid.Row>
@@ -87,7 +141,8 @@ const FilterModal = props => {
                   <OptionButton
                     key={index}
                     selected={selectedCountry === country.value}
-                    onClick={() => setCountry(country.value)}>
+                    onClick={() => handleCountryBtn(country.value)}
+                  >
                     {country.text}
                   </OptionButton>
                 ))}
@@ -99,11 +154,10 @@ const FilterModal = props => {
               <Grid.Column width={16}>
                 <SubTitle block>지역</SubTitle>
                 {locations[selectedCountry].map((location, index) => (
-                  // TODO: 지역 선택 로직 개발 필요
                   <OptionButton
                     key={index}
-                    // selected={selectedCountry === country.value}
-                    // onClick={() => setCountry(country.value)}
+                    selected={isCheckedLocation(location)}
+                    onClick={() => handleLocationBtn(location)}
                   >
                     {location}
                   </OptionButton>
@@ -118,7 +172,8 @@ const FilterModal = props => {
                 fluid
                 selection
                 options={careerOptions}
-                defaultValue={careerOptions[0].value}
+                defaultValue={selectedCareer}
+                onChange={(e, { value }) => setCareer(value)}
               />
             </Grid.Column>
           </Grid.Row>
@@ -133,7 +188,9 @@ const FilterModal = props => {
       </Modal.Content>
 
       <Modal.Actions>
-        <Button primary>적용</Button>
+        <Button primary onClick={applyFliterOption}>
+          적용
+        </Button>
       </Modal.Actions>
     </Modal>
   );
@@ -143,7 +200,8 @@ FilterModal.defaultProps = {
   open: false,
   sortOptions: [],
   careerOptions: [],
-  onClose: () => {}
+  onClose: () => {},
+  onAction: () => {}
 };
 
 export default FilterModal;
