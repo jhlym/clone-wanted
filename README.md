@@ -88,4 +88,3 @@ yarn start
     - 비즈니스 로직을 갖고 있는 컴포넌트
 
 - 에러 처리, 예외 처리 필요
-- 필터 내용 localstorage 혹은 cookie 이용하여 저장 필요
