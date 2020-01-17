@@ -43,6 +43,7 @@ const FilterModal = props => {
   } = React.useContext(FilterContext);
 
   const [localFilters, setLocalFilters] = React.useState(null);
+  const [applyCheck, setApplyCheck] = React.useState(false);
 
   // componentDidMount
   React.useEffect(() => {
@@ -54,7 +55,18 @@ const FilterModal = props => {
     toggleFilterModal();
     setSelectedFilters(localFilters);
     iniJobs(localFilters);
-  }, [iniJobs, localFilters, setSelectedFilters, toggleFilterModal]);
+    if (applyCheck) {
+      window.localStorage.setItem("filters", JSON.stringify(localFilters));
+    } else {
+      window.localStorage.removeItem("filters");
+    }
+  }, [
+    applyCheck,
+    iniJobs,
+    localFilters,
+    setSelectedFilters,
+    toggleFilterModal
+  ]);
 
   const handleLocationBtn = React.useCallback(
     location => {
@@ -126,6 +138,10 @@ const FilterModal = props => {
       ...selectedFilters,
       [objkey]: options.find(e => e.value === value)
     });
+  };
+
+  const toggleApplyCheckbox = () => {
+    setApplyCheck(!applyCheck);
   };
 
   if (!filters || !localFilters) return null;
@@ -220,7 +236,10 @@ const FilterModal = props => {
           <Grid.Row>
             <Grid.Column width={16}>
               {/* TODO: localstorage 이용 */}
-              <Checkbox label="적용된 필터를 저장하고 유지합니다." />
+              <Checkbox
+                label="적용된 필터를 저장하고 유지합니다."
+                onChange={toggleApplyCheckbox}
+              />
             </Grid.Column>
           </Grid.Row>
         </Grid>

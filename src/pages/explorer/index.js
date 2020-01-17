@@ -65,6 +65,14 @@ const Explorer = () => {
         "key",
         "display"
       );
+      setFilters(tmpFilters);
+
+      // 필터 저장 기능을 사용 중이면 localstorage를 이용
+      const localFilters = JSON.parse(window.localStorage.getItem("filters"));
+      if (localFilters) {
+        setSelectedFilters(localFilters);
+        return localFilters;
+      }
       const [jobSort, countries, years] = getDefaultSelected(tmpFilters)(
         "job_sort",
         "countries",
@@ -77,7 +85,6 @@ const Explorer = () => {
         years: years,
         locations: locations !== undefined ? [locations] : []
       };
-      setFilters(tmpFilters);
       setSelectedFilters(tmpSelectedFilters);
       return tmpSelectedFilters;
     } catch (e) {
