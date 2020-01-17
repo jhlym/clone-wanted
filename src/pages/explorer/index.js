@@ -1,12 +1,13 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from "react";
-// import styled from "styled-components";
 // components
-import { Container, Grid, Icon, Placeholder } from "semantic-ui-react";
+import { Container, Grid, Icon, Message } from "semantic-ui-react";
+import InfiniteScroll from "react-infinite-scroller";
 import FilterModal from "./Modal/FilterModal";
 import { BasicButton } from "../../components/Button";
 import PhotoCard from "../../components/Card/PhotoCard";
 // api
+import client from "../../api/client";
 import { _getFilters, _getJobs } from "../../api/explorer";
 // utils
 import { convertDropdownFormat } from "../../utils";
@@ -19,7 +20,6 @@ const Explorer = () => {
   const [filterModalOpen, setFilterModal] = React.useState(false);
   const [filters, setFilters] = React.useState(null);
   const [selectedFilters, setSelectedFilters] = React.useState(null);
-
   const [jobs, setjobs] = React.useState(null);
 
   // componentDidMount
@@ -28,11 +28,13 @@ const Explorer = () => {
   }, []);
 
   const init = async () => {
+    // 필터 값 초기화
     const defaultFilters = await initFilters();
-    await getJobs(defaultFilters);
+    // 필터 값 기반으로 채용 회사 리스트 조회
+    await iniJobs(defaultFilters);
   };
 
-  const getJobs = async selectedObj => {
+  const iniJobs = async selectedObj => {
     try {
       const { data: res } = await _getJobs({
         country: selectedObj.countries.key,
@@ -41,7 +43,7 @@ const Explorer = () => {
         years: selectedObj.years.key,
         locations: selectedObj.locations.map(e => e.key)
       });
-      setjobs(res.data);
+      setjobs(res);
     } catch (e) {
       console.dir(e);
     }
@@ -83,9 +85,42 @@ const Explorer = () => {
     }
   };
 
+  const loadJobs = () => {
+    client.get(jobs.links.next).then(res => {
+      const { data, status } = res;
+      // TODO: 예외처리
+      if (status !== 200) return;
+      setjobs({
+        data: [...jobs.data, ...data.data],
+        links: data.links
+      });
+    });
+  };
+
   const toggleFilterModal = () => {
     setFilterModal(!filterModalOpen);
   };
+
+  // 카드 선택 시, 해당 job 페이지로 이동
+  const moveJobPage = (companyId, postId) => {
+    window.location.href = `https://www.wanted.co.kr/wd/${postId}?referer_id=${companyId}`;
+  };
+
+  const JobCard = job => (
+    <Grid.Column
+      width={4}
+      key={job.id}
+      onClick={() => moveJobPage(job.company.id, job.id)}
+    >
+      <PhotoCard
+        src={job.title_img.thumb}
+        title={job.position}
+        meta={`${job.address.location} ${job.address.country}`}
+        desc={job.company.name}
+        content={`채용 보상금 ${job.reward.formatted_total}`}
+      />
+    </Grid.Column>
+  );
 
   return (
     <Container>
@@ -136,23 +171,36 @@ const Explorer = () => {
       </Grid>
       {/* AD Company List */}
       {/* General Company List */}
-      <Grid>
-        {jobs &&
-          jobs.map(job => (
-            <Grid.Column width={4} key={job.id}>
-              <PhotoCard
-                src={job.title_img.thumb}
-                title={job.position}
-                meta={`${job.address.location} ${job.address.country}`}
-                desc={job.company.name}
-                content={`채용 보상금 ${job.reward.formatted_total}`}
-              />
-            </Grid.Column>
-          ))}
-        {/* loading bar */}
-        {!jobs && useLoading()}
-      </Grid>
-
+      {/* {jobs && (
+        <InfiniteScroll
+          dataLength={jobs.data.length}
+          next={loadJobs}
+          hasMore={jobs.links.next}
+          loader={useLoading}
+        >
+          <Grid>{jobs.data.map(job => JobCard(job))}</Grid>
+        </InfiniteScroll>
+      )} */}
+      {!jobs && useLoading()}
+      {jobs && jobs.data && (
+        <InfiniteScroll
+          pageStart={0}
+          loadMore={loadJobs}
+          hasMore={jobs.links.next !== null}
+          loader={<p key={0}>Loading...</p>}
+        >
+          <Grid>{jobs.data.map(job => JobCard(job))}</Grid>
+        </InfiniteScroll>
+      )}
+      {jobs && !jobs.data && (
+        <Message>
+          <Message.Header>
+            <Icon name="warning" />
+            결과를 찾지 못했습니다.
+          </Message.Header>
+          <p>필터링 옵션을 다시 설정해주세요.</p>
+        </Message>
+      )}
       {/* Modal */}
       <FilterContext.Provider
         value={{
@@ -162,7 +210,7 @@ const Explorer = () => {
           filterModalOpen,
           toggleFilterModal,
           initFilters,
-          getJobs
+          iniJobs
         }}
       >
         <FilterModal />

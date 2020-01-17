@@ -35,7 +35,7 @@ export const convertDropdownFormat = (data, value, text) => {
       ...e,
       objkey: key,
       value: e[value],
-      text: decodeUnicode(e[text])
+      text: e[text]
     }));
     newObj[key] = newValue;
   });

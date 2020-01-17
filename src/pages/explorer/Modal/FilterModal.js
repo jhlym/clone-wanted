@@ -39,7 +39,7 @@ const FilterModal = props => {
     filterModalOpen,
     toggleFilterModal,
     initFilters,
-    getJobs
+    iniJobs
   } = React.useContext(FilterContext);
 
   const [localFilters, setLocalFilters] = React.useState(null);
@@ -53,8 +53,8 @@ const FilterModal = props => {
   const applyFliterOption = React.useCallback(() => {
     toggleFilterModal();
     setSelectedFilters(localFilters);
-    getJobs(localFilters);
-  }, [getJobs, localFilters, setSelectedFilters, toggleFilterModal]);
+    iniJobs(localFilters);
+  }, [iniJobs, localFilters, setSelectedFilters, toggleFilterModal]);
 
   const handleLocationBtn = React.useCallback(
     location => {
