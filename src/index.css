@@ -28,7 +28,6 @@ html,
 body {
   margin: 0;
   height: 100%;
-  overflow: hidden;
 }
 /**
  * Render the `main` element consistently in IE.

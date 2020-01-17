@@ -1,3 +1,4 @@
 import OptionButton from "./OptionButton";
+import BasicButton from "./BasicButton";
 
-export { OptionButton };
+export { OptionButton, BasicButton };

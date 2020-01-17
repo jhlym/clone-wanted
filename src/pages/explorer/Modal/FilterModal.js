@@ -35,66 +35,107 @@ const FilterModal = props => {
   const {
     filters,
     selectedFilters,
-    setFilters,
     setSelectedFilters,
     filterModalOpen,
-    toggleFilterModal
+    toggleFilterModal,
+    initFilters,
+    getJobs
   } = React.useContext(FilterContext);
 
+  const [localFilters, setLocalFilters] = React.useState(null);
+
   // componentDidMount
-  React.useEffect(() => {}, []);
+  React.useEffect(() => {
+    setLocalFilters(selectedFilters);
+  }, [selectedFilters]);
 
-  // const isCheckedLocation = React.useCallback(
-  //   location => _.find(selectedLocation, e => e === location) !== undefined
-  // );
-
-  // TODO: 초기화 함수 정의
-  const reset = React.useCallback(() => {}, []);
-
-  // const handleLocationBtn = React.useCallback(
-  //   location => {
-  //     // 선택
-  //     if (!isCheckedLocation(location)) {
-  //       setLocation([...selectedLocation, location]);
-  //     }
-  //     // 선택 해제
-  //     else {
-  //       setLocation(_.filter(selectedLocation, e => location !== e));
-  //     }
-  //   },
-  //   [isCheckedLocation, selectedLocation]
-  // );
-
+  // 적용 버튼 이벤트 헨들러
   const applyFliterOption = React.useCallback(() => {
     toggleFilterModal();
-  }, [toggleFilterModal]);
+    setSelectedFilters(localFilters);
+    getJobs(localFilters);
+  }, [getJobs, localFilters, setSelectedFilters, toggleFilterModal]);
 
-  const handleOptionBtn = React.useCallback(
-    (objkey, value) =>
-      setSelectedFilters({
-        ...selectedFilters,
-        [objkey]: value
-      }),
-    [selectedFilters, setSelectedFilters]
+  const handleLocationBtn = React.useCallback(
+    location => {
+      const DEFAULT_KEY = "all";
+      // 이미 선택 된 버튼인지 체크
+      function isCheckedLocation() {
+        return (
+          localFilters["locations"].find(e => e.key === location.key) !==
+          undefined
+        );
+      }
+      // 선택
+      if (!isCheckedLocation()) {
+        let selectedLocation = [];
+        // 전체 선택을 하면 전체 하나만 선택하게 변경
+        if (location.key === DEFAULT_KEY) {
+          selectedLocation = [location];
+        }
+        // 전체가 아닌 경우는
+        else {
+          selectedLocation = [
+            ...localFilters.locations.filter(e => e.key !== DEFAULT_KEY),
+            location
+          ];
+        }
+        setLocalFilters({
+          ...localFilters,
+          locations: selectedLocation
+        });
+      }
+      // 선택 해제(전체는 클라이언트 이벤트로 해제 불가능)
+      else if (location.key !== DEFAULT_KEY) {
+        let selectedLocation = [];
+        // 아무것도 선택된 것이 없다면 전체를 default로 전체 선택
+        if (localFilters.locations.length === 1) {
+          selectedLocation = [
+            localFilters["countries"].locations.find(e => e.key === DEFAULT_KEY)
+          ];
+        } else {
+          selectedLocation = localFilters.locations.filter(
+            e => e.key !== location.key
+          );
+        }
+        setLocalFilters({
+          ...localFilters,
+          locations: selectedLocation
+        });
+      }
+    },
+    [localFilters]
+  );
+
+  const handleCountryBtn = React.useCallback(
+    country => {
+      const location = country.locations.find(e => e.selected === true);
+      setLocalFilters({
+        ...localFilters,
+        countries: country,
+        locations: location !== undefined ? [location] : []
+      });
+    },
+    [localFilters]
   );
 
   const handleDropdown = (e, data) => {
     const { options, value } = data;
     const objkey = options[0].objkey;
-    setSelectedFilters({
+    setLocalFilters({
       ...selectedFilters,
       [objkey]: options.find(e => e.value === value)
     });
   };
 
-  if (!filters || !selectedFilters) return null;
+  if (!filters || !localFilters) return null;
 
   return (
     <Modal size="tiny" open={filterModalOpen} onClose={toggleFilterModal}>
       <Modal.Header style={{ fontSize: "1.1rem" }}>
         <Grid>
           <Grid.Row columns={3}>
-            <Grid.Column onClick={reset} style={{ cursor: "pointer" }}>
+            <Grid.Column onClick={initFilters} style={{ cursor: "pointer" }}>
               <Icon name="refresh" size="small" style={headerToolStyle} />
               <SubTitle>초기화</SubTitle>
             </Grid.Column>
@@ -117,10 +158,11 @@ const FilterModal = props => {
             <Grid.Column width={16}>
               <SubTitle>정렬</SubTitle>
               <Dropdown
+                key={localFilters["job_sort"].key}
                 fluid
                 selection
                 options={filters.job_sort}
-                defaultValue={selectedFilters["job_sort"].value}
+                defaultValue={localFilters["job_sort"].value}
                 onChange={handleDropdown}
               />
             </Grid.Column>
@@ -132,10 +174,9 @@ const FilterModal = props => {
                 {filters.countries.map((country, index) => (
                   <OptionButton
                     key={index}
-                    selected={
-                      selectedFilters["countries"].value === country.value
-                    }
-                    onClick={() => handleOptionBtn("countries", country)}>
+                    selected={localFilters["countries"].value === country.value}
+                    onClick={() => handleCountryBtn(country)}
+                  >
                     {country.text}
                   </OptionButton>
                 ))}
@@ -146,11 +187,15 @@ const FilterModal = props => {
           <Grid.Row>
             <Grid.Column width={16}>
               <SubTitle block>지역</SubTitle>
-              {selectedFilters["countries"].locations.map((location, index) => (
+              {localFilters["countries"].locations.map((location, index) => (
                 <OptionButton
                   key={index}
-                  // selected={selectedFilters['locations']}
-                  // onClick={() => handleOptionBtn("countries", country)}
+                  selected={
+                    localFilters["locations"].find(
+                      e => e.key === location.key
+                    ) !== undefined
+                  }
+                  onClick={() => handleLocationBtn(location)}
                 >
                   {location.display}
                 </OptionButton>
@@ -162,10 +207,11 @@ const FilterModal = props => {
             <Grid.Column width={16}>
               <SubTitle>경력</SubTitle>
               <Dropdown
+                key={localFilters["years"].key}
                 fluid
                 selection
                 options={filters.years}
-                defaultValue={selectedFilters["years"].value}
+                defaultValue={localFilters["years"].value}
                 onChange={handleDropdown}
               />
             </Grid.Column>
