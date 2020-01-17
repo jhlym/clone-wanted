@@ -10,6 +10,8 @@ import PhotoCard from "../../components/Card/PhotoCard";
 import { _getFilters, _getJobs } from "../../api/explorer";
 // utils
 import { convertDropdownFormat } from "../../utils";
+// hooks
+import useLoading from "../../hooks/useLoading";
 
 export const FilterContext = React.createContext(null);
 
@@ -147,6 +149,8 @@ const Explorer = () => {
               />
             </Grid.Column>
           ))}
+        {/* loading bar */}
+        {!jobs && useLoading()}
       </Grid>
 
       {/* Modal */}
