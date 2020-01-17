@@ -1,68 +1,71 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+> 원티드 미니 프로젝트 과제 레포지토리 입니다.
 
-## Available Scripts
+# 프로젝트 구조
 
-In the project directory, you can run:
+```
+├── config-overrides.js     # yarn eject 없이 create-react-app 설정
+├── package.json            # 프로젝트 설정 파일
+├── public                  # static 리소스 보관 파일
+|  ├── favicon.ico
+|  ├── index.html
+|  ├── logo192.png
+|  ├── logo512.png
+|  ├── manifest.json
+|  └── robots.txt
+├── README.md
+├── src
+|  ├── api                  # axios 비동기 호출
+|  ├── App.js
+|  ├── components           # 재사용 가능한 컴포넌트 디렉토리
+|  ├── hooks                # custom hooks 디렉토리
+|  ├── index.css
+|  ├── index.js             # App Endpoint
+|  ├── pages                # 페이지에 해당하는 컴포넌트 디렉토리
+|  ├── routes               # Route 설정 디렉토리
+|  ├── serviceWorker.js
+|  ├── setupTests.js
+|  └── utils                # util 함수 디렉토리
+└── yarn.lock
+```
 
-### `yarn start`
+# 사용 라이브러리 정보
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+| 라이브러리        | 버전    | 라이센스     |
+| ----------------- | ------- | ------------ |
+| react             | 16.12.0 | MIT License  |
+| react-app-rewired | 2.1.5   | MIT License  |
+| react-router-dom  | 5.1.2   | MIT License  |
+| semantic-ui-css   | 2.4.1   | MIT License  |
+| semantic-ui-react | 0.88.2  | MIT License  |
+| styled-components | 5.0.0   | MIT License  |
+| axios             | 0.19.1  | MIT License  |
+| qs                | 6.9.1   | BSD 3-Clause |
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+# 설치
 
-### `yarn test`
+```bash
+yarn install
+```
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# 실행
 
-### `yarn build`
+```bash
+yarn start
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# 향 후 개선점
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+- 컴포넌트 분리가 제대로 되지 않았습니다... 좀 더 고민하게 리팩토링이 필요합니다.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+  - 프리젠테이셔널 컴포넌트
 
-### `yarn eject`
+    - 상태 값을 가지고 있지 않으며
+    - props를 통해 부모로 부터 전달 받은 데이터만 이용
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+  - 컨테이너 컴포넌트
+    - 상태 값을 가지고 있음
+    - 비즈니스 로직을 갖고 있는 컴포넌트
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+- 에러 처리, 예외 처리 필요
+- infinite scroll 기능 구현 필요
+- 필터 내용 localstorage 혹은 cookie 이용하여 저장 필요
