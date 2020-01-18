@@ -77,7 +77,6 @@ yarn start
 # 개선점
 
 - 컴포넌트 분리가 제대로 되지 않았습니다... 좀 더 고민한 후 리팩토링이 필요합니다.
-
   - 프리젠테이셔널 컴포넌트
 
     - 상태 값을 가지고 있지 않으며
@@ -88,3 +87,16 @@ yarn start
     - 비즈니스 로직을 갖고 있는 컴포넌트
 
 - 에러 처리, 예외 처리 필요
+- React.memo를 이용한 렌더링 최적화 필요
+  - 채용 리스트를 가져와서 렌더링할때, 이전 렌더링 내용과 같다면 재렌더링하지 않도록 React.memo 사용 필요
+- React.useReducer, React.useCallback 제대로 사용하기...
+  - 컴포넌트 밖에 비즈니스 로직을 정의할 수 있고, 최적화가 가능
+  - callback은 useState의 set 함수를 이용할때 파라미터에 함수로 넘겨주어야 최적화가 됌
+  - 아래 예시
+  
+  ```javascript
+  const [value, setValue] = React.useState(0)
+  const func = React.useCallback((input)=> {setValue(()=>input)}, [])
+  ```
+ - React.Suspense, React.lazy를 이용한 코드 스플리팅
+ - 서버 사이드 렌더링(optional)
