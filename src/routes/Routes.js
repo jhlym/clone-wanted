@@ -7,16 +7,11 @@ import routes from "./index";
 
 const Routes = () => {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/clone-wanted">
       <React.Suspense fallback={useLoading()}>
         <Switch>
           {routes.map(({ name, path, component: Component }, index) => (
-            <Route
-              key={index}
-              path={path}
-              exact
-              render={props => <Component {...props} />}
-            />
+            <Route key={index} path={path} exact render={props => <Component {...props} />} />
           ))}
           <Redirect from="/" to="/explorer" />
         </Switch>

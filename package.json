@@ -1,5 +1,6 @@
 {
   "name": "wanted-clone-test",
+  "homepage": "https://wnsgur.dev/clone-wanted",
   "version": "0.1.0",
   "private": true,
   "proxy": "https://www.wanted.co.kr/",
@@ -8,6 +9,7 @@
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "axios": "^0.19.1",
+    "gh-pages": "^2.2.0",
     "lodash": "^4.17.15",
     "mobx": "^5.15.2",
     "mobx-react": "^6.1.5",
@@ -23,6 +25,8 @@
     "styled-components": "^5.0.0"
   },
   "scripts": {
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test --env=jsdom",
